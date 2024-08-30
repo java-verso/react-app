@@ -21,8 +21,16 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build project
-        run: npm run build
+      - name: Create assets directory
+        run: mkdir -p android/app/src/main/assets
+
+      - name: Bundle React Native code and assets
+        run: react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+
+      - name: Build APK
+        run: |
+          cd android
+          ./gradlew assembleRelease
 
       - name: Create Release
         id: create_release
@@ -42,5 +50,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: android/app/build/outputs/apk/release/app-release.apk
-          asset_name: asset.zip
-          asset_content_type: application/zip
+          asset_name: app-release.apk
+          asset_content_type: application/vnd.android.package-archive
